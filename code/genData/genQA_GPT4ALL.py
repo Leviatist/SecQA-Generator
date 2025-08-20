@@ -6,9 +6,26 @@ from fileParser import FileParser
 from static import INPUT_PATH, OUTPUT_PATH, SYSPROMPT
 from tqdm import tqdm
 
+import os
+
+# 假设你的 DLL 都放在这个目录下
+dll_path = r"lib/"
+
+# 获取当前项目的根目录
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# 拼出 Lib 文件夹的绝对路径
+dll_path = os.path.join(project_root, "Lib")
+
+# 添加 DLL 搜索目录
+if hasattr(os, "add_dll_directory"):
+    os.add_dll_directory(dll_path)
+else:
+    os.environ["PATH"] = dll_path + ";" + os.environ["PATH"]
+
 # 初始化本地 GPT4All 模型
 model = GPT4All("Meta-Llama-3-8B-Instruct.Q4_0.gguf", model_path="model")
-
+exit(0)
 # 读取 Excel 行
 parser = FileParser(INPUT_PATH)
 rows = parser.extract_text()  # 每行数据是列表的一项

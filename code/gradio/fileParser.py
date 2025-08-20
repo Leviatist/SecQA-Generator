@@ -1,3 +1,4 @@
+import pdfplumber
 import pandas as pd
 import os
 
@@ -21,6 +22,8 @@ class FileParser:
             self.extracted_text = self._extract_csv()
         elif ext in [".txt", ".md"]:
             self.extracted_text = self._extract_txt()
+        elif ext == ".pdf":
+            self.extracted_text = self._extract_pdf()
         else:
             raise ValueError(f"❌ 不支持的文件类型: {ext}")
         return self.extracted_text
@@ -32,6 +35,7 @@ class FileParser:
         text = ""
         try:
             excel_data = pd.ExcelFile(self.file_path)
+            # fuc2: markdown_table = df.to_markdown(index=False) # index=False表示不显示行索引
             for sheet in excel_data.sheet_names:
                 df = pd.read_excel(self.file_path, sheet_name=sheet)
                 text += f"\n=== Sheet: {sheet} ===\n"
@@ -56,3 +60,17 @@ class FileParser:
             return text
         except Exception as e:
             raise RuntimeError(f"❌ 文本文件解析出错: {str(e)}")
+        
+    def _extract_pdf(self):
+        text = ""
+        try:
+            with pdfplumber.open(self.file_path) as pdf:
+                total_pages = len(pdf.pages)
+                preview_pages = min(self.preview_rows, total_pages)  # 这里用 preview_rows 控制页数预览
+                for i in range(preview_pages):
+                    page = pdf.pages[i]
+                    text += f"\n=== Page {i+1} ===\n"
+                    text += page.extract_text() or "[⚠️ 无法提取文本]"
+            return text
+        except Exception as e:
+            raise RuntimeError(f"❌ PDF 解析出错: {str(e)}")

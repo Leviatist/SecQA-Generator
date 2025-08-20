@@ -39,4 +39,5 @@ gradio/
 ```
 ## Todo
 1. 对每个Row生成多行训练数据
-2. gradio界面
+2. gradio界面，加一个AI自动调整提示词
+3. Rag

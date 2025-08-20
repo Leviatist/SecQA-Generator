@@ -15,27 +15,26 @@ rows = parser.extract_text()
 results = []
 
 for idx, row_text in enumerate(rows):
-    if idx == 10:
-        break
-    print(f"[INFO] Generating QA for row {idx+1}/{len(rows)}...")
+    for j in range(10):
+        print(f"[INFO] Generating QA for {idx*10+1}/{len(rows)*10}...")
 
-    try:
-        response = client.chat.completions.create(
-            model="deepseek-chat",
-            messages=[
-                {"role": "system", "content": SYSPROMPT},
-                {"role": "user", "content": row_text}
-            ],
-            temperature=0.3
-        )
+        try:
+            response = client.chat.completions.create(
+                model="deepseek-chat",
+                messages=[
+                    {"role": "system", "content": SYSPROMPT},
+                    {"role": "user", "content": row_text}
+                ],
+                temperature=0.3
+            )
 
-        content = response.choices[0].message.content
-        qa_pair = extract_strict_json(content)
-        results.append(qa_pair)
+            content = response.choices[0].message.content
+            qa_pair = extract_strict_json(content)
+            results.append(qa_pair)
 
-    except Exception as e:
-        print(f"[ERROR] Failed to generate QA for row {idx}: {e}")
-        continue
+        except Exception as e:
+            print(f"[ERROR] Failed to generate QA for row {idx}: {e}")
+            continue
 
 # 写入 JSON 文件
 with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
