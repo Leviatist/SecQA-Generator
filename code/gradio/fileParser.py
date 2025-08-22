@@ -3,11 +3,11 @@ import pandas as pd
 import os
 
 class FileParser:
-    def __init__(self, file_path, preview_rows=10):
+    def __init__(self, file_path, preview_rows=1000):
         """
         通用文件解析器
         :param file_path: 文件路径
-        :param preview_rows: 每个文件/Sheet 预览的行数，默认 10 行
+        :param preview_rows: 每个文件/Sheet 预览的行数，默认 1000 行
         """
         self.file_path = file_path
         self.preview_rows = preview_rows

@@ -1,57 +1,42 @@
-import json
-import pandas as pd
-from gpt4all import GPT4All
-from utils import extract_strict_json 
+from openai import OpenAI
+from utils import extract_strict_json
 from fileParser import FileParser
-from static import INPUT_PATH, OUTPUT_PATH, SYSPROMPT
-from tqdm import tqdm
+from static import DEEPSEEK_API_URL, DEEPSEEK_API_KEY, INPUT_PATH, OUTPUT_PATH, SYSPROMPT
 
-import os
+# 连接本地 Ollama
+client = OpenAI(
+    base_url="http://localhost:11434/v1",  # Ollama 默认 API 地址
+    api_key="ollama"  # 随便填，Ollama 不校验
+)
 
-# 假设你的 DLL 都放在这个目录下
-dll_path = r"lib/"
-
-# 获取当前项目的根目录
-project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-# 拼出 Lib 文件夹的绝对路径
-dll_path = os.path.join(project_root, "Lib")
-
-# 添加 DLL 搜索目录
-if hasattr(os, "add_dll_directory"):
-    os.add_dll_directory(dll_path)
-else:
-    os.environ["PATH"] = dll_path + ";" + os.environ["PATH"]
-
-# 初始化本地 GPT4All 模型
-model = GPT4All("Meta-Llama-3-8B-Instruct.Q4_0.gguf", model_path="model")
-exit(0)
-# 读取 Excel 行
 parser = FileParser(INPUT_PATH)
-rows = parser.extract_text()  # 每行数据是列表的一项
+
+rows = parser.extract_text()
 
 results = []
 
-for idx, row_text in enumerate(tqdm(rows, desc="Generating QA pairs")):
-    if idx==10:
+for idx, row_text in enumerate(rows):
+    if idx == 10:
         break
-    # 构建 prompt：结合系统提示和当前行数据
-    prompt = f"{SYSPROMPT}\nDocument line:\n{row_text}\n\nYou MUST generate a QA pair STRICTLY in JSON format."
-    
-    try:
-        # 调用 GPT4All 生成
-        content = model.generate(prompt)
-        
-        # 严格解析 JSON
-        qa_pair = extract_strict_json(content)
-        results.append(qa_pair)
-        
-    except Exception as e:
-        print(f"[ERROR] Failed to generate QA for row {idx}: {e}")
-        continue
+    for j in range(10):
+        print(f"[INFO] Generating QA for {idx*10+j+1}/{len(rows)*10}...")
 
-# 写入 JSON 文件
-with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
-    json.dump(results, f, ensure_ascii=False, indent=4)
+        try:
+            response = client.chat.completions.create(
+                model="llama3-8b-instruct",  # 改成你在 Ollama 里可用的模型名
+                messages=[
+                    {"role": "system", "content": SYSPROMPT},
+                    {"role": "user", "content": row_text}
+                ],
+                temperature=0.3
+            )
 
-print(f"[INFO] QA pairs saved to {OUTPUT_PATH}")
+            content = response.choices[0].message.content
+            qa_pair = extract_strict_json(content)  
+            results.append(qa_pair)
+
+        except Exception as e:
+            print(f"[ERROR] Failed to generate QA for row {idx}: {e}")
+            continue
+
+print("[DONE] QA generation finished.")

@@ -13,7 +13,7 @@ def query_deepseek(sys_prompt, user_text, file_path):
         model="deepseek-reasoner",
         messages=[
             {"role": "system", "content": sys_prompt},
-            {"role": "user", "content": user_text + content[:1000]},
+            {"role": "user", "content": user_text + content},
         ],
         stream=False
     )
