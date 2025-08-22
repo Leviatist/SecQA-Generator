@@ -3,7 +3,8 @@ import requests
 import pandas as pd
 from openai import OpenAI
 from fileParser import FileParser
-from static import DEEPSEEK_API_KEY, DEEPSEEK_API_URL, SYSPROMPT
+from API import DEEPSEEK_API_KEY, DEEPSEEK_API_URL
+from static import SYSPROMPT
 
 # 查询 deepseek
 def query_deepseek(sys_prompt, user_text, file_path):
