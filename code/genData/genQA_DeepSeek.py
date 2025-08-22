@@ -3,7 +3,8 @@ import pandas as pd
 from openai import OpenAI
 from utils import extract_strict_json
 from fileParser import FileParser
-from static import DEEPSEEK_API_URL, DEEPSEEK_API_KEY, INPUT_PATH, OUTPUT_PATH, SYSPROMPT
+from API import DEEPSEEK_API_URL, DEEPSEEK_API_KEY
+from static import INPUT_PATH, OUTPUT_PATH, SYSPROMPT
 
 # 初始化 DeepSeek 客户端
 client = OpenAI(api_key=DEEPSEEK_API_KEY, base_url=DEEPSEEK_API_URL)
