@@ -3,7 +3,7 @@ import pandas as pd
 import os
 
 class FileParser:
-    def __init__(self, file_path, preview_rows=1000):
+    def __init__(self, file_path, preview_rows=30):
         """
         通用文件解析器
         :param file_path: 文件路径
@@ -15,6 +15,8 @@ class FileParser:
 
     def extract_text(self):
         """根据文件类型提取文本"""
+        if self.file_path == None:
+            return ''
         ext = os.path.splitext(self.file_path)[1].lower()
         if ext in [".xlsx", ".xls"]:
             self.extracted_text = self._extract_excel()

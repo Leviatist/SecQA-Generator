@@ -1,10 +1,31 @@
+import re
 import gradio as gr
-import requests
-import pandas as pd
 from openai import OpenAI
 from fileParser import FileParser
 from API import DEEPSEEK_API_KEY, DEEPSEEK_API_URL
 from static import SYSPROMPT
+
+def save_sysprompt_to_file(sys_prompt_text):
+    file_path = "static.py"
+    
+    # 读取 static.py 内容
+    with open(file_path, "r", encoding="utf-8") as f:
+        content = f.read()
+    
+    # 替换 SYSPROMPT 的值
+    new_content = re.sub(
+        r'SYSPROMPT\s*=\s*("""|\'\'\')(.*?)(\1)',
+        f'SYSPROMPT = """{sys_prompt_text}"""',
+        content,
+        flags=re.DOTALL
+    )
+    
+    # 写回 static.py
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(new_content)
+    
+    return "系统提示词已存档！"
+
 
 # 查询 deepseek
 def query_deepseek(sys_prompt, user_text, file_path):
@@ -46,14 +67,15 @@ with gr.Blocks() as demo:
 
     with gr.Row():
         with gr.Column(scale=1):
-            latest_sys_prompt = gr.Textbox(label="当前系统提示词", value=SYSPROMPT, interactive=False, lines=19, min_width=100)
+            latest_sys_prompt = gr.Textbox(label="当前系统提示词", value=SYSPROMPT, interactive=False, lines=18, min_width=100)
+            save_button = gr.Button("存档系统提示词")
 
         with gr.Column(scale=1):
-            sys_prompt = gr.Textbox(label="修改系统提示词", placeholder="输入要更新的系统提示词", lines=16, min_width=300)
+            sys_prompt = gr.Textbox(label="修改系统提示词", placeholder="输入要更新的系统提示词", lines=18, min_width=300)
             update_button = gr.Button("更新系统提示词")
 
         with gr.Column(scale=1):
-            user_input = gr.Textbox(label="输入文本", placeholder="在这里输入查询文本", lines=16, min_width=300)
+            user_input = gr.Textbox(label="输入文本", placeholder="在这里输入查询文本", lines=18, min_width=300)
             run_button = gr.Button("查询")
 
     file_input = gr.File(label="拖拽文件上传", file_types=[".xlsx", ".xls", ".csv", ".pdf"], min_width=100, elem_id="file-box")
@@ -86,6 +108,11 @@ with gr.Blocks() as demo:
         generate_sys_prompt_from_feedback,
         inputs=[sys_prompt, feedback_input],
         outputs=[latest_sys_prompt] 
+    )
+
+    save_button.click(
+    save_sysprompt_to_file,
+    inputs=latest_sys_prompt,
     )
 
     demo.launch(share=True)

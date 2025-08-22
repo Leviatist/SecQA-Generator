@@ -1,7 +1,7 @@
 from openai import OpenAI
 from utils import extract_strict_json
 from fileParser import FileParser
-from static import DEEPSEEK_API_URL, DEEPSEEK_API_KEY, INPUT_PATH, OUTPUT_PATH, SYSPROMPT
+from static import INPUT_PATH, OUTPUT_PATH, SYSPROMPT
 
 # 连接本地 Ollama
 client = OpenAI(

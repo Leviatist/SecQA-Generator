@@ -17,7 +17,7 @@ results = []
 
 for idx, row_text in enumerate(rows):
     for j in range(10):
-        print(f"[INFO] Generating QA for {idx*10+1}/{len(rows)*10}...")
+        print(f"[INFO] Generating QA for {idx*10+j}/{len(rows)*10}...")
 
         try:
             response = client.chat.completions.create(
@@ -32,7 +32,7 @@ for idx, row_text in enumerate(rows):
             content = response.choices[0].message.content
             qa_pair = extract_strict_json(content)
             results.append(qa_pair)
-
+            print(results[-1])
         except Exception as e:
             print(f"[ERROR] Failed to generate QA for row {idx}: {e}")
             continue
